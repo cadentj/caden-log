@@ -1,7 +1,10 @@
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
-import { Telegraf } from 'telegraf';
-import { createClient } from '@supabase/supabase-js';
+import { Telegraf, Context } from 'telegraf';
+import { Update } from 'telegraf/types';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import { messages } from './schema.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -10,7 +13,7 @@ const app = new Hono();
 const PORT = process.env.PORT || 8080;
 
 // Validate required environment variables
-const requiredEnvVars = ['BOT_TOKEN', 'SUPABASE_URL', 'SUPABASE_KEY'];
+const requiredEnvVars = ['BOT_TOKEN', 'DATABASE_URL'] as const;
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
     console.error(`Error: ${envVar} is not set`);
@@ -18,14 +21,13 @@ for (const envVar of requiredEnvVars) {
   }
 }
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
-);
+// Initialize database connection
+// Use { prepare: false } for Transaction pooler compatibility (required for Supabase)
+const client = postgres(process.env.DATABASE_URL!, { prepare: false });
+const db = drizzle(client);
 
 // Initialize Telegraf bot
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const bot = new Telegraf(process.env.BOT_TOKEN!);
 
 // Health check endpoint for Fly.io
 app.get('/health', (c) => {
@@ -35,7 +37,7 @@ app.get('/health', (c) => {
 // Webhook endpoint for Telegram
 app.post(`/webhook/${process.env.BOT_TOKEN}`, async (c) => {
   try {
-    const body = await c.req.json();
+    const body = await c.req.json<Update>();
     await bot.handleUpdate(body);
     return c.text('OK', 200);
   } catch (error) {
@@ -44,11 +46,11 @@ app.post(`/webhook/${process.env.BOT_TOKEN}`, async (c) => {
   }
 });
 
-// Log message to Supabase
-async function logMessage(ctx) {
+// Log message to database
+async function logMessage(ctx: Context): Promise<void> {
   try {
     const message = ctx.message;
-    if (!message) return;
+    if (!message || !('text' in message)) return;
 
     const logEntry = {
       message_id: message.message_id,
@@ -59,21 +61,13 @@ async function logMessage(ctx) {
       chat_id: message.chat.id,
       chat_type: message.chat.type,
       text: message.text || null,
-      timestamp: new Date(message.date * 1000).toISOString(),
-      created_at: new Date().toISOString()
+      timestamp: new Date(message.date * 1000),
     };
 
-    const { error } = await supabase
-      .from('messages')
-      .insert([logEntry]);
-
-    if (error) {
-      console.error('Error logging to Supabase:', error);
-    } else {
-      console.log(`Logged message ${message.message_id} from user ${message.from?.id}`);
-    }
+    await db.insert(messages).values(logEntry);
+    console.log(`Logged message ${message.message_id} from user ${message.from?.id}`);
   } catch (error) {
-    console.error('Error in logMessage:', error);
+    console.error('Error logging message:', error);
   }
 }
 
@@ -93,7 +87,7 @@ bot.catch((err, ctx) => {
 // Start Hono server
 const server = serve({
   fetch: app.fetch,
-  port: PORT,
+  port: Number(PORT),
 }, (info) => {
   console.log(`Server running on port ${info.port}`);
   
@@ -120,6 +114,7 @@ process.once('SIGINT', () => {
   console.log('SIGINT received, shutting down gracefully...');
   bot.stop('SIGINT');
   server.close(() => {
+    client.end();
     console.log('Server closed');
     process.exit(0);
   });
@@ -129,6 +124,7 @@ process.once('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully...');
   bot.stop('SIGTERM');
   server.close(() => {
+    client.end();
     console.log('Server closed');
     process.exit(0);
   });
