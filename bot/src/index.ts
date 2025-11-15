@@ -4,7 +4,7 @@ import { Telegraf, Context } from 'telegraf';
 import { Update } from 'telegraf/types';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { messages } from './schema.js';
+import { messages } from 'db';
 import dotenv from 'dotenv';
 
 dotenv.config();
