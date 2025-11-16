@@ -3,18 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "./src/schema.ts",
-  "types": "./src/schema.ts",
   "exports": {
-    ".": {
-      "development": "./src/schema.ts",
-      "types": "./dist/schema.d.ts",
-      "import": "./dist/schema.js",
-      "default": "./src/schema.ts"
-    }
+    "./schema": "./src/schema.ts"
   },
   "scripts": {
-    "build": "tsc",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate"
   },

@@ -31,3 +31,5 @@ build/
 # Drizzle migrations
 drizzle/
 
+# Turbo 
+.turbo
