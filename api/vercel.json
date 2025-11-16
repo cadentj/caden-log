@@ -1,7 +1,7 @@
 {
   "buildCommand": "cd .. && pnpm install --frozen-lockfile && cd api && pnpm run build",
   "installCommand": "pnpm install --frozen-lockfile",
-  "framework": null,
+  "framework": "hono",
   "outputDirectory": "dist",
   "rewrites": [
     {
