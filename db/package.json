@@ -7,8 +7,10 @@
   "types": "./src/schema.ts",
   "exports": {
     ".": {
-      "types": "./src/schema.ts",
-      "import": "./src/schema.ts"
+      "development": "./src/schema.ts",
+      "types": "./dist/schema.d.ts",
+      "import": "./dist/schema.js",
+      "default": "./src/schema.ts"
     }
   },
   "scripts": {
