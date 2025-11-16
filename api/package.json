@@ -12,7 +12,8 @@
     "db": "workspace:*",
     "drizzle-orm": "^0.44.7",
     "hono": "^4.7.0",
-    "postgres": "^3.4.5"
+    "postgres": "^3.4.5",
+    "telegraf": "^4.16.3"
   },
   "devDependencies": {
     "@types/node": "^20.19.25",

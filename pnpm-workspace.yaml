@@ -1,5 +1,4 @@
 packages:
   - 'api'
-  - 'bot'
   - 'web'
   - 'db'
