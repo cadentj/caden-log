@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { Telegraf, Context } from 'telegraf';
 import { Update } from 'telegraf/types';
-import { db } from './db';
+import { db } from './db.js';
 import { messages } from 'db/schema';
 import dotenv from 'dotenv';
 
