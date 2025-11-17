@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
+  "main": "./dist/schema.js",
+  "types": "./dist/schema.d.ts",
   "exports": {  
     "./schema": {
-      "types": "./src/schema.ts",
+      "types": "./dist/schema.d.ts",
       "default": "./dist/schema.js"
     }
   },
