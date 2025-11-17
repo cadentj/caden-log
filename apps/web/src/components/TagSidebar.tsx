@@ -3,8 +3,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useMemo } from "react";
-import type { MessageWithTag, Tag } from "db";
+import type { MessageWithTag } from "db";
 
 interface TagSidebarProps {
   selectedTagId: string | null;
