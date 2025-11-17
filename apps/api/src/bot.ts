@@ -9,7 +9,6 @@ import { Hono } from "hono";
 
 const app = new Hono();
 
-
 dotenv.config();
 
 const usePolling = !process.env.VERCEL;

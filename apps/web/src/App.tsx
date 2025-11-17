@@ -1,23 +1,16 @@
-import { useMessages } from './lib/api/useMessages'
+import { useState } from "react";
+import { TagSidebar } from "./components/TagSidebar";
+import { MessageList } from "./components/MessageList";
 
 function App() {
-  const { data: messages, isLoading, error } = useMessages()
-
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
-
-  if (error) {
-    return <div>Error: {error.message}</div>
-  }
+  const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
 
   return (
-    <ul>
-      {messages?.map((message) => (
-        <li key={message.id}>{message.text}</li>
-      ))}
-    </ul>
-  )
+    <div className="h-screen flex">
+      <TagSidebar selectedTagId={selectedTagId} onSelectTag={setSelectedTagId} />
+      <MessageList selectedTagId={selectedTagId} />
+    </div>
+  );
 }
 
-export default App
+export default App;
