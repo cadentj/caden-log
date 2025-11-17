@@ -1,9 +1,13 @@
 import { Telegraf, Context } from "telegraf";
-import { db } from "./db.js";
+import { db } from "./db-client.js";
 import { messages } from "db";
 import * as dotenv from "dotenv";
 import { Update } from "telegraf/types";
-import app from ".";
+
+import { Hono } from "hono";
+
+const app = new Hono();
+
 
 dotenv.config();
 
@@ -67,7 +71,7 @@ if (process.env.BOT_TOKEN) {
 
 if (!usePolling) {
   // Webhook endpoint for Telegram with header validation
-  app.post("/api/webhook", async (c) => {
+  app.post("/webhook", async (c) => {
     if (!bot) {
       return c.text("Bot not configured", 503);
     }
@@ -90,3 +94,5 @@ if (!usePolling) {
     }
   });
 }
+
+export default app;

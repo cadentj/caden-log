@@ -1,9 +1,10 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { db } from "./db.js";
-import { messages } from "db";
 import dotenv from "dotenv";
+
+import bot from "./bot.js";
+import dbQueries from "./db-queries.js";
 
 dotenv.config();
 
@@ -18,17 +19,8 @@ app.use(
   })
 );
 
-// API endpoint for fetching messages
-app.get("/api/messages", async (c) => {
-  try {
-    const result = await db.select().from(messages);
-    return c.json(result);
-  } catch (error) {
-    console.error("Error fetching messages:", error);
-    return c.json({ error: "Failed to fetch messages" }, 500);
-  }
-});
-
+app.route("/bot", bot);
+app.route("/api", dbQueries);
 
 // Health check endpoint
 app.get("/health", (c) => {
