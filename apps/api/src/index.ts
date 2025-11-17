@@ -2,7 +2,7 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { db } from "./db.js";
-import { messages } from "db/schema";
+import { messages } from "db";
 import dotenv from "dotenv";
 
 dotenv.config();

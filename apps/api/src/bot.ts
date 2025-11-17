@@ -1,5 +1,5 @@
 import { Telegraf, Context } from "telegraf";
-import { db } from "./db";
+import { db } from "./db.js";
 import { messages } from "db";
 import * as dotenv from "dotenv";
 import { Update } from "telegraf/types";
