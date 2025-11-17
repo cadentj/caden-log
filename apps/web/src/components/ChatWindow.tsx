@@ -132,14 +132,14 @@ export function ChatWindow({ children }: ChatWindowProps) {
         position={{ x: currentState.x, y: currentState.y }}
         size={{ width: currentState.width, height: currentState.height }}
         onDragStart={() => setIsDragging(true)}
-        onDragStop={(e, d) => {
+        onDragStop={(_e, d) => {
           setIsDragging(false);
           if (!isMaximized) {
             setCurrentState((prev) => ({ ...prev, x: d.x, y: d.y }));
           }
         }}
         onResizeStart={() => setIsResizing(true)}
-        onResizeStop={(e, direction, ref, delta, position) => {
+        onResizeStop={(_e, _direction, ref, _delta, position) => {
           setIsResizing(false);
           if (!isMaximized) {
             setCurrentState({

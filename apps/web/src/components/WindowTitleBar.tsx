@@ -1,6 +1,5 @@
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
-import { Minimize2, Maximize2, X } from "lucide-react";
 
 interface WindowTitleBarProps {
   onMinimize?: () => void;
