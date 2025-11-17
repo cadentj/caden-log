@@ -14,7 +14,7 @@ const app = new Hono();
 app.use(
   "/*",
   cors({
-    origin: ["http://localhost:5173", "https://caden-log-web.vercel.app"],
+    origin: ["http://localhost:5173", "https://hello.cadentj.com"],
     credentials: true,
   })
 );
