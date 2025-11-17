@@ -1,16 +1,21 @@
-import { pgTable, bigserial, bigint, text, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 
-export const messages = pgTable('messages', {
-  id: bigserial('id', { mode: 'number' }).primaryKey(),
-  message_id: bigint('message_id', { mode: 'number' }).notNull(),
-  user_id: bigint('user_id', { mode: 'number' }),
-  username: text('username'),
-  first_name: text('first_name'),
-  last_name: text('last_name'),
-  chat_id: bigint('chat_id', { mode: 'number' }).notNull(),
-  chat_type: text('chat_type'),
-  text: text('text'),
-  timestamp: timestamp('timestamp', { withTimezone: true }).notNull(),
+export const tags = pgTable('tags', {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text('name').notNull().unique(),
   created_at: timestamp('created_at', { withTimezone: true }).defaultNow(),
 });
 
+export const messages = pgTable('messages', {
+  id: uuid("id").primaryKey().defaultRandom(),
+  text: text('text'),
+  created_at: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  display: boolean('display').notNull().default(false),
+  tag_id: uuid("tag_id").references(() => tags.id, {onDelete: "cascade"})
+});
+
+export type Tag = typeof tags.$inferSelect
+export type NewTag = typeof tags.$inferInsert
+
+export type Message = typeof messages.$inferSelect
+export type NewMessage = typeof messages.$inferInsert

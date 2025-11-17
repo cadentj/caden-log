@@ -1,8 +1,9 @@
 import { Telegraf, Context } from "telegraf";
 import { db } from "./db-client.js";
-import { messages } from "db";
+import { messages, tags, type NewMessage } from "db";
 import * as dotenv from "dotenv";
 import { Update } from "telegraf/types";
+import { eq } from "drizzle-orm";
 
 import { Hono } from "hono";
 
@@ -25,21 +26,50 @@ if (process.env.BOT_TOKEN) {
       const message = ctx.message;
       if (!message || !("text" in message)) return;
 
+      const originalText = message.text || "";
+
+      // Parse log() prefix
+      const logPrefixRegex = /^log\(([^)]*)\)\s*/;
+      const match = originalText.match(logPrefixRegex);
+
+      let display = false;
+      let tagId: string | null = null;
+      let processedText = originalText;
+
+      if (match) {
+        // Message has log() prefix
+        display = true;
+
+        // Strip prefix and leading whitespace
+        processedText = originalText.replace(logPrefixRegex, '');
+
+        // Extract tag argument if present
+        const tagArg = match[1]?.trim();
+
+        if (tagArg) {
+          // Look up tag in database
+          const tagResult = await db
+            .select()
+            .from(tags)
+            .where(eq(tags.name, tagArg))
+            .limit(1);
+
+          if (tagResult.length > 0 && tagResult[0]) {
+            tagId = tagResult[0].id;
+          }
+          // If tag not found, tagId remains null (as per user requirements)
+        }
+      }
+
       const logEntry = {
-        message_id: message.message_id,
-        user_id: message.from?.id || null,
-        username: message.from?.username || null,
-        first_name: message.from?.first_name || null,
-        last_name: message.from?.last_name || null,
-        chat_id: message.chat.id,
-        chat_type: message.chat.type,
-        text: message.text || null,
-        timestamp: new Date(message.date * 1000),
-      };
+        text: processedText || null,
+        display,
+        tag_id: tagId,
+      } as NewMessage;
 
       await db.insert(messages).values(logEntry);
       console.log(
-        `Logged message ${message.message_id} from user ${message.from?.id}`
+        `Logged message ${message.message_id} from user ${message.from?.id} (display: ${display}, tag_id: ${tagId})`
       );
     } catch (error) {
       console.error("Error logging message:", error);
