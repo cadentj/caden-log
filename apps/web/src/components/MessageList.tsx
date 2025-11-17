@@ -3,6 +3,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageBubble } from "./MessageBubble";
 import { useMemo } from "react";
 import type { MessageWithTag } from "db";
+import { useTheme } from "@/contexts/ThemeContext";
+import { Moon, Sun } from "lucide-react";
 
 interface MessageListProps {
   selectedTagId: string | null;
@@ -36,6 +38,7 @@ function groupMessagesByDate(messages: MessageWithTag[]) {
 export function MessageList({ selectedTagId }: MessageListProps) {
   const { data: messages, isLoading, error } = useMessages();
   const { data: tags } = useTags();
+  const { theme, toggleTheme } = useTheme();
 
   // Get the display name for the header
   const displayName = useMemo(() => {
@@ -92,16 +95,33 @@ export function MessageList({ selectedTagId }: MessageListProps) {
     );
   }
 
+  const bgColor = theme === "light" ? "bg-white" : "bg-[#1c1c1e]";
+  const headerBg = theme === "light" ? "bg-[#f9f9f9]" : "bg-[#2c2c2e]";
+  const borderColor = theme === "light" ? "border-gray-200" : "border-gray-800";
+  const textColor = theme === "light" ? "text-black" : "text-white";
+  const mutedTextColor = theme === "light" ? "text-gray-500" : "text-gray-400";
+
   if (filteredMessages.length === 0) {
     return (
-      <div className="flex-1 flex flex-col">
+      <div className={`flex-1 flex flex-col ${bgColor}`}>
         {/* Header */}
-        <div className="h-14 border-b border-border flex items-center justify-center bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <h1 className="font-semibold text-base">{displayName}</h1>
+        <div className={`h-14 border-b ${borderColor} flex items-center justify-center ${headerBg} backdrop-blur supports-[backdrop-filter]:${headerBg}/60 relative`}>
+          <h1 className={`font-semibold text-base ${textColor}`}>{displayName}</h1>
+          <button
+            onClick={toggleTheme}
+            className={`absolute right-4 p-2 rounded-full hover:bg-gray-200 ${theme === "dark" ? "hover:bg-gray-700" : ""} transition-colors`}
+            aria-label="Toggle theme"
+          >
+            {theme === "light" ? (
+              <Moon className="w-5 h-5 text-gray-600" />
+            ) : (
+              <Sun className="w-5 h-5 text-gray-400" />
+            )}
+          </button>
         </div>
         {/* Empty state */}
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-muted-foreground text-sm">
+          <div className={`text-sm ${mutedTextColor}`}>
             No messages to display
           </div>
         </div>
@@ -110,10 +130,21 @@ export function MessageList({ selectedTagId }: MessageListProps) {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-white dark:bg-[#1c1c1e]">
+    <div className={`flex-1 flex flex-col ${bgColor}`}>
       {/* Header */}
-      <div className="h-14 border-b border-border flex items-center justify-center bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shrink-0">
-        <h1 className="font-semibold text-base">{displayName}</h1>
+      <div className={`h-14 border-b ${borderColor} flex items-center justify-center ${headerBg} backdrop-blur supports-[backdrop-filter]:${headerBg}/60 shrink-0 relative`}>
+        <h1 className={`font-semibold text-base ${textColor}`}>{displayName}</h1>
+        <button
+          onClick={toggleTheme}
+          className={`absolute right-4 p-2 rounded-full hover:bg-gray-200 ${theme === "dark" ? "hover:bg-gray-700" : ""} transition-colors`}
+          aria-label="Toggle theme"
+        >
+          {theme === "light" ? (
+            <Moon className="w-5 h-5 text-gray-600" />
+          ) : (
+            <Sun className="w-5 h-5 text-gray-400" />
+          )}
+        </button>
       </div>
 
       {/* Messages */}
@@ -123,7 +154,7 @@ export function MessageList({ selectedTagId }: MessageListProps) {
             <div key={group.date}>
               {/* Date header */}
               <div className="flex justify-center mb-4">
-                <div className="text-xs text-muted-foreground px-3 py-1 rounded-full bg-muted/50">
+                <div className={`text-xs ${mutedTextColor} px-3 py-1 rounded-full ${theme === "light" ? "bg-gray-100" : "bg-gray-800"}`}>
                   {group.date}
                 </div>
               </div>
